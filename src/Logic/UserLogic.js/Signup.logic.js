@@ -5,7 +5,6 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-
 function SignupLogic() {
   const [showPass, setShowPass] = useState(false);
   const [showCPass, setShowCPass] = useState(false);
@@ -86,31 +85,30 @@ function SignupLogic() {
 
   const navigateToPhone = (e) => {
     e?.preventDefault();
-    navigate("/auth/phone")
-  }
+    navigate("/auth/phone");
+  };
 
   const signUpUser = async (e) => {
     e?.preventDefault();
     if (!name || !email || !password || !CPassword) {
       toast.error("Please fill all fields");
-      setValidateMessage((prev) => "Please fill all fields");
+      setValidateMessage("Please fill all fields");
       return;
     }
     if (password !== CPassword) {
       toast.error("Passwords do not match");
-      setValidateMessage((prev) => "Passwords do not match");
+      setValidateMessage("Passwords do not match");
       return;
     }
-    setSigningin((prev) => true);
-    setValidateMessage((prev) => null);
-    
+    setSigningin(true);
+    setValidateMessage(null);
 
     const account = new Account(client);
     const database = new Databases(client);
     try {
       const response = await account.create(ID.unique(), email, password, name);
-      try{
-        response = await database.createDocument(
+      try {
+        await database.createDocument(
           process.env.REACT_APP_DATABASE_ID,
           process.env.REACT_APP_USERS_COLLECTION_ID,
           ID.unique(),
@@ -119,15 +117,12 @@ function SignupLogic() {
             email,
             userId: response.$id,
           }
-          )
-        }
-        catch(e){console.log(e)}
-      
-      const loggedInResponse = await account.createEmailSession(
-        email,
-        password
-      );
-      
+        );
+      } catch (e) {
+        console.log(e);
+      }
+
+      const loggedInResponse = await account.createEmailSession(email, password);
       localStorage.setItem("token", JSON.stringify(loggedInResponse));
       toast.success("Signed up successfully");
       navigate("/auth/phone", {
@@ -135,15 +130,14 @@ function SignupLogic() {
         state: {
           ...loggedInResponse,
           email,
-          password
-        }
+          password,
+        },
       });
     } catch (error) {
-      
-      setValidateMessage((prev) => error.message);
+      setValidateMessage(error.message);
       toast.error(error.message);
     } finally {
-      setSigningin((prev) => false);
+      setSigningin(false);
     }
   };
 
@@ -166,7 +160,7 @@ function SignupLogic() {
     CPassword,
     setCPassword,
     signUpUser,
-    navigateToPhone
+    navigateToPhone,
   };
 }
 

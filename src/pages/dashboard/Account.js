@@ -11,10 +11,7 @@ import { useUser } from "../../context/userContext";
 function Account() {
   const [loading, setLoading] = useState(false);
   const [updateFields, setUpdateFields] = useState(false);
-
-  const {userInfo, setUserInfo} = useUser()
-
-  // const user = JSON.parse(localStorage.getItem("spotlight-user"));
+  const { userInfo, setUserInfo } = useUser();
 
   const {
     name: userName,
@@ -30,20 +27,18 @@ function Account() {
 
   const verifyEmail = async (e) => {
     e.preventDefault();
-    
     try {
-      setLoading((prev) => true);
+      setLoading(true);
       const account = new Ac(client);
-      const res = await account.createVerification(
+      await account.createVerification(
         `${process.env.REACT_APP_WEBSITE_URL}/verify-email`
       );
-      
       toast.success("Verification email sent");
     } catch (err) {
       console.error(err);
       toast.error(err.messsage);
     } finally {
-      setLoading((prev) => false);
+      setLoading(false);
     }
   };
 
@@ -79,27 +74,20 @@ function Account() {
 
   const revalidateFields = () => {
     const user = JSON.parse(localStorage.getItem("spotlight-user"));
-    const {
-      name: userName,
-      email: userEmail,
-      phone: userPhone,
-    } = user;
-    setName((prev) => userName);
-    setEmail((prev) => userEmail);
-    setPhone((prev) => userPhone);
-    setUserInfo(prev => user)
+    const { name: updatedName, email: updatedEmail, phone: updatedPhone } = user;
+    setName(updatedName);
+    setEmail(updatedEmail);
+    setPhone(updatedPhone);
+    setUserInfo(user);
   };
 
   const handleUpdateFields = async (e) => {
     e.preventDefault();
     try {
-      setLoading((prev) => true);
+      setLoading(true);
       const account = new Ac(client);
-      
-      
       if (name !== userName) {
         const res = await account.updateName(name);
-        
         const databases = new Databases(client);
         const userDoc = await databases.listDocuments(
           process.env.REACT_APP_DATABASE_ID,
@@ -107,35 +95,31 @@ function Account() {
           [Query.equal("userId", userInfo.$id)]
         );
         if (userDoc?.documents?.length > 0) {
-          const docRes = await databases.updateDocument(
+          await databases.updateDocument(
             process.env.REACT_APP_DATABASE_ID,
             process.env.REACT_APP_USERS_COLLECTION_ID,
-            userDoc?.documents[0]?.$id,
-            {
-              name,
-            }
+            userDoc.documents[0].$id,
+            { name }
           );
         }
         toast.success("Name updated successfully!");
-        
         localStorage.setItem("spotlight-user", JSON.stringify(res));
         revalidateFields();
       }
     } catch (err) {
-      
       toast.error(err.message);
     } finally {
-      setLoading((prev) => false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     if (!updateFields) {
-      setName((prev) => userName);
-      setEmail((prev) => userEmail);
-      setPhone((prev) => userPhone);
+      setName(userName);
+      setEmail(userEmail);
+      setPhone(userPhone);
     }
-  }, [updateFields]);
+  }, [updateFields, userName, userEmail, userPhone]);
 
   return (
     <div className="flex flex-col items-center justify-center h-full w-full gap-4 ">
@@ -160,8 +144,7 @@ function Account() {
         {updateFields && (
           <Button
             type="submit"
-            className="primary-btn"
-            style="mt-0"
+            className="primary-btn mt-0"
             text={"Save"}
             disabled={!updateFields}
             loading={loading}

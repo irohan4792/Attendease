@@ -4,10 +4,7 @@ import PhoneLogic from '../../Logic/UserLogic.js/Phone.logic'
 import Input from '../../components/Input';
 
 function Phone() {
-
-    const { inputs, validateMessage, updatePhoneNumber, signingin, phoneCode } = PhoneLogic();
-
-
+    const { inputs, updatePhoneNumber, signingin, phoneCode } = PhoneLogic();
 
   return (
     <form onSubmit={updatePhoneNumber} className='w-full'>

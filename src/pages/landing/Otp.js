@@ -4,12 +4,7 @@ import OtpLogic from '../../Logic/UserLogic.js/Otp.logic'
 import Input from '../../components/Input';
 
 function Otp() {
-
-    const { inputs, validateMessage, updatePhoneVerificationStatus, signingin, timeString, phone, timeLeft, resendCode } = OtpLogic();
-
-    
-    
-    
+    const { inputs, updatePhoneVerificationStatus, signingin, timeString, timeLeft, resendCode } = OtpLogic();
 
   return (
     <>
