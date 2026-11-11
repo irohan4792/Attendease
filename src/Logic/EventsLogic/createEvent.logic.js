@@ -15,8 +15,6 @@ function CreateEventLogic() {
 
   const id = searchParams.get("id");
 
-  
-
   const navigate = useNavigate();
 
   const fileRef = useRef(null);
@@ -65,7 +63,6 @@ function CreateEventLogic() {
         id
       );
 
-      
       const {
         title,
         description,
@@ -83,7 +80,7 @@ function CreateEventLogic() {
         language,
         tnc,
         acceptingAttendance,
-        acceptingRsvp
+        acceptingRsvp,
       } = response;
       setFetchedDoc((prev) => response);
       setTitle((prev) => title);
@@ -124,10 +121,10 @@ function CreateEventLogic() {
     if (value.title !== fetchedDoc?.title) {
       updatedObj.title = title;
     }
-    if(value?.acceptingAttendance !== fetchedDoc?.acceptingAttendance) {
+    if (value?.acceptingAttendance !== fetchedDoc?.acceptingAttendance) {
       updatedObj.acceptingAttendance = acceptingAttendance;
     }
-    if(value?.acceptingRsvp !== fetchedDoc?.acceptingRsvp) {
+    if (value?.acceptingRsvp !== fetchedDoc?.acceptingRsvp) {
       updatedObj.acceptingRsvp = acceptingRsvp;
     }
     if (value.tnc !== fetchedDoc?.tnc) {
@@ -151,10 +148,10 @@ function CreateEventLogic() {
     if (value?.maxParticipants !== fetchedDoc?.maxParticipants) {
       updatedObj.maxParticipants = maxParticipants;
     }
-    if(value?.duration !== fetchedDoc?.duration) {
+    if (value?.duration !== fetchedDoc?.duration) {
       updatedObj.duration = duration;
     }
-    if(value?.language !== fetchedDoc?.language) {
+    if (value?.language !== fetchedDoc?.language) {
       updatedObj.language = language;
     }
     if (value.category !== fetchedDoc?.category) {
@@ -178,7 +175,7 @@ function CreateEventLogic() {
   const handleCreateEvent = async (e) => {
     e?.preventDefault();
     const token = JSON.parse(localStorage.getItem("token"));
-    console.log(token.userId)
+    console.log(token.userId);
     setSigningin((prev) => true);
     setValidateMessage((prev) => null);
     try {
@@ -213,14 +210,6 @@ function CreateEventLogic() {
           throw new Error("Please provide a longitude for your event.");
         }
       }
-      // if (medium === "online") {
-      //   if (!meetLink) {
-      //     throw new Error("Please provide a meeting link for your event.");
-      //   }
-      //   if (!meetId) {
-      //     throw new Error("Please provide a meeting id for your event.");
-      //   }
-      // }
       if (image === null) {
         throw new Error("Please provide an image for your event.");
       }
@@ -229,33 +218,32 @@ function CreateEventLogic() {
         const storage = new Storage(client);
         if (typeof image !== "string") {
           if (fetchedDoc?.imageId) {
-            const deletedFile = await storage.deleteFile(
+            await storage.deleteFile(
               process.env.REACT_APP_IMAGES_BUCKET_ID,
               fetchedDoc?.imageId
             );
-            
           }
+
           uploadedFile = await storage.createFile(
             process.env.REACT_APP_IMAGES_BUCKET_ID,
             ID.unique(),
             image
           );
-          
-          filePreviewUrl = await storage.getFilePreview(
+
+          filePreviewUrl = storage.getFileView(
             uploadedFile.bucketId,
             uploadedFile.$id
           );
-          
         } else if (image === null) {
-          const deletedFile = await storage.deleteFile(
+          await storage.deleteFile(
             process.env.REACT_APP_IMAGES_BUCKET_ID,
             fetchedDoc?.imageId
           );
-          
           filePreviewUrl = null;
         } else {
           filePreviewUrl = image;
         }
+
         const value = {
           title,
           description,
@@ -263,7 +251,8 @@ function CreateEventLogic() {
           startDate,
           endDate,
           category,
-          maxParticipants: String(maxParticipants).length === 0 ? 0 : maxParticipants,
+          maxParticipants:
+            String(maxParticipants).length === 0 ? 0 : maxParticipants,
           location:
             medium === "online"
               ? []
@@ -280,16 +269,15 @@ function CreateEventLogic() {
           acceptingAttendance,
           duration,
           language,
-          acceptingRsvp
+          acceptingRsvp,
         };
         const updatedValues = id ? getUpdatedValues(value) : value;
-        
+
         const databases = new Databases(client);
         const teams = new Teams(client);
         let teamId;
         if (id === undefined || id === null || id === "" || !id) {
           const teamResponse = await teams.create(ID.unique(), title);
-          
           teamId = teamResponse.$id;
         }
         const response = id
@@ -305,22 +293,18 @@ function CreateEventLogic() {
               ID.unique(),
               { ...value, teamId }
             );
-        
-        if(title !== fetchedDoc?.title) {
+
+        if (title !== fetchedDoc?.title) {
           const teamNameUpdate = await teams.updateName(teamId, title);
-          
         }
-        // const updateTeamPreferences = await teams.updatePrefs( teamId, {...fetchedDoc?, ...response } )
-        // 
+
         toast.success(`Event ${id ? "updated" : "created"} successfully`);
         navigate(-1);
       } catch (error) {
-        
         setValidateMessage((prev) => error.message);
         toast.error(error.message);
       }
     } catch (err) {
-      
       toast.error(err.message);
     } finally {
       setSigningin((prev) => false);
@@ -490,27 +474,9 @@ function CreateEventLogic() {
       cb: setMeetPassword,
       show: medium === "online",
     },
-    // {
-    //   label: "Accepting Attendances",
-    //   value: acceptingAttendance,
-    //   // placeholder: "Please provide a meet password for your event.",
-    //   cb: setAcceptingAttendance,
-    //   show: true,
-    //   options: [
-    //     {
-    //       label: "Yes",
-    //       value: true,
-    //     },
-    //     {
-    //       label: "No",
-    //       value: false,
-    //     },
-    //   ],
-    // },
     {
       label: "Accepting RSVPs",
       value: acceptingRsvp,
-      // placeholder: "Please provide a meet password for your event.",
       cb: setAcceptingRsvp,
       show: true,
       options: [
@@ -523,7 +489,7 @@ function CreateEventLogic() {
           value: false,
         },
       ],
-    }
+    },
   ];
 
   const removeImage = (e) => {
@@ -551,4 +517,5 @@ function CreateEventLogic() {
     fetchingDoc,
   };
 }
+
 export default CreateEventLogic;
