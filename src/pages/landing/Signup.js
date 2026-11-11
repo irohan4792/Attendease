@@ -4,12 +4,7 @@ import SignupLogic from '../../Logic/UserLogic.js/Signup.logic'
 import Input from '../../components/Input';
 
 function Signup() {
-
-    const { inputs, validateMessage, signUpUser, signingin, navigateToPhone } = SignupLogic();
-
-    
-    
-    
+    const { inputs, signUpUser, signingin } = SignupLogic();
 
   return (
     <form onSubmit={signUpUser} className='w-full'>
@@ -18,7 +13,7 @@ function Signup() {
                 <Input {...input} show={true}/>
             ))
         }
-        <Button loading={signingin} type={'submit'} text='Sign up' style={'my-2'} />
+        <Button loading={signingin} type={'submit'} text='Sign up' className='my-2' />
     </form>
   )
 }
